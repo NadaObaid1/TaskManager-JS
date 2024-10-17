@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "description": "Buy cleaning supplies",
+    "completed": true
+  },
+  {
+    "id": 2,
+    "description": "Watch an episode of a TV show",
+    "completed": false
+  },
+  {
+    "id": 4,
+    "description": "Prepare dinner for family",
+    "completed": true
+  },
+  {
+    "id": 5,
+    "description": "Go for a 30-minute run",
+    "completed": false
+  },
+  {
+    "id": 6,
+    "description": "Read 20 pages of a book",
+    "completed": true
+  }
+]
