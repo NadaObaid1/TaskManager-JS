@@ -1,112 +1,134 @@
-const fs = require('fs');
-const taskFilePath = 'myTasks.json'; 
-
-function loadMyTasks() {
-    if (fs.existsSync(taskFilePath)) {
-        const data = fs.readFileSync(taskFilePath, 'utf8');
-        return JSON.parse(data);
+class TaskManager {
+    constructor() {
+        this.tasks = [];
     }
-    return [];
-}
-function saveMyTasks(myTasks) {
-    fs.writeFileSync(taskFilePath, JSON.stringify(myTasks, null, 2), 'utf8');
+
+    getWantedMethod() {
+        const numberOfMethod = prompt('Choose an option from the menu:');
+        return numberOfMethod;
+    }
+
+    addTask() {
+        const description = prompt('Enter a description for the new task:');
+        const id = this.tasks.length === 0 ? 1 : this.tasks[this.tasks.length - 1].id + 1;
+        const task = { id, description, completed: false };
+        this.tasks.push(task);
+        console.log(`🎉 Task "${description}" has been successfully added ✅`);
+    }
+
+    displayTasks() {
+        if (this.tasks.length === 0) {
+            console.log('❌ No tasks found!!!');
+        } else {
+            console.log('📋 Task List:');
+            this.tasks.forEach((task) => {
+                console.log(`ID: ${task.id} | Description: ${task.description} | Status: ${task.completed ? '✅ Completed' : '❌ Not completed'}`);
+            });
+        }
+    }
+
+    toggleTask() {
+        const id = Number(prompt('Enter the task ID to toggle its status:'));
+        const task = this.tasks.find(task => task.id === id);
+        if (task) {
+            task.completed = !task.completed;
+            console.log(`🔄 Task ${id} status has been changed to ${task.completed ? 'Completed ✅' : 'Not completed ❌'}.`);
+        } else {
+            console.log(`⚠️ Task with ID ${id} not found!!!`);
+        }
+    }
+
+    updateTask() {
+        const id = Number(prompt('Enter the task ID to update its description:'));
+        const newDescription = prompt('Enter the new description:');
+        const task = this.tasks.find(task => task.id === id);
+        if (task) {
+            task.description = newDescription;
+            console.log(`✏️ Task ${id} has been successfully updated. New description: "${newDescription}"`);
+        } else {
+            console.log(`⚠️ Task with ID ${id} not found!!!`);
+        }
+    }
+
+    removeTask() {
+        const id = Number(prompt('Enter the task ID to remove:'));
+        const index = this.tasks.findIndex(task => task.id === id);
+        if (index > -1) {
+            this.tasks.splice(index, 1);
+            console.log(`🗑️ Task ${id} has been removed successfully.`);
+        } else {
+            console.log(`⚠️ Task with ID ${id} not found!!!`);
+        }
+    }
+
+    searchTasks() {
+        const description = prompt('Enter a description to search for tasks:');
+        const foundTasks = this.tasks.filter(task => task.description.toLowerCase().includes(description.toLowerCase()));
+        if (foundTasks.length > 0) {
+            console.log(`🔍 Tasks containing "${description}":`);
+            foundTasks.forEach(task => {
+                console.log(`ID: ${task.id} | Description: ${task.description} | Status: ${task.completed ? '✅ Completed' : '❌ Not completed'}`);
+            });
+        } else {
+            console.log(`🚫 No tasks found containing "${description}"`);
+        }
+    }
+
+    exit() {
+        console.log('👋 Goodbye! See you next time.');
+    }
 }
 
-// addMyTask
-function addMyTask(taskDescription) {
-    const myTasks = loadMyTasks();
-    const newTask = {
-        id: myTasks.length + 1,
-        description: taskDescription,
-        completed: false,
-    };
-    myTasks.push(newTask);
-    saveMyTasks(myTasks);
-    console.log('Task added:', newTask);
-}
+console.log(`💼 Task Management Menu:
+    [1] ➕ Add Task
+    [2] 📋 Display Tasks
+    [3] 🔄 Toggle Task Status
+    [4] ✏️ Update Task Description
+    [5] 🗑️ Remove Task
+    [6] 🔍 Search Tasks
+    [7] 🚪 Exit`); 
 
-// viewMyTasks
-function viewMyTasks() {
-    const myTasks = loadMyTasks();
-    if (myTasks.length === 0) {
-        console.log('No tasks found.');
+const taskManagerObject = new TaskManager();
+
+function handleInput() {
+    const choice = Number(taskManagerObject.getWantedMethod());
+    if (choice >= 1 && choice <= 7) {
+        switch (choice) {
+            case 1:
+                taskManagerObject.addTask();
+                handleInput();
+                break;
+            case 2:
+                taskManagerObject.displayTasks();
+                handleInput();
+                break;
+            case 3:
+                taskManagerObject.toggleTask();
+                handleInput();
+                break;
+            case 4:
+                taskManagerObject.updateTask();
+                handleInput();
+                break;
+            case 5:
+                taskManagerObject.removeTask();
+                handleInput();
+                break;
+            case 6:
+                taskManagerObject.searchTasks();
+                handleInput();
+                break;
+            case 7:
+                taskManagerObject.exit();
+                break;
+            default:
+                console.log('🚫 Invalid choice!');
+                handleInput();
+        }
     } else {
-        myTasks.forEach(task => {
-            console.log(`ID: ${task.id} | Description: ${task.description} | Completed: ${task.completed ? 'Yes' : 'No'}`);
-        });
+        console.log('🚫 Invalid choice!');
+        handleInput();
     }
 }
 
-// toggleMyTaskCompletion
-function toggleMyTaskCompletion(taskId) {
-    const myTasks = loadMyTasks();
-    const task = myTasks.find(task => task.id === taskId);
-    if (task) {
-        task.completed = !task.completed;
-        saveMyTasks(myTasks);
-        console.log(`Task ${taskId} completion toggled to ${task.completed ? 'completed' : 'not completed'}`);
-    } else {
-        console.log('Task not found');
-    }
-}
-
-// removeMyTask
-function removeMyTask(taskId) {
-    let myTasks = loadMyTasks();
-    myTasks = myTasks.filter(task => task.id !== taskId);
-    saveMyTasks(myTasks);
-    console.log(`Task ${taskId} removed`);
-}
-
-// editMyTask
-function editMyTask(taskId, newTaskDescription) {
-    const myTasks = loadMyTasks();
-    const task = myTasks.find(task => task.id === taskId);
-    if (task) {
-        task.description = newTaskDescription;
-        saveMyTasks(myTasks);
-        console.log(`Task ${taskId} description updated to "${newTaskDescription}"`);
-    } else {
-        console.log('Task not found');
-    }
-}
-
-// searchMyTasks
-function searchMyTasks(query) {
-    const myTasks = loadMyTasks();
-    const results = myTasks.filter(task => task.description.toLowerCase().includes(query.toLowerCase()));
-    if (results.length > 0) {
-        results.forEach(task => {
-            console.log(`ID: ${task.id} | Description: ${task.description} | Completed: ${task.completed ? 'Yes' : 'No'}`);
-        });
-    } else {
-        console.log('No tasks match your search.');
-    }
-}
-
-const commandInput = process.argv[2]; 
-const firstArgument = process.argv[3];  
-const secondArgument = process.argv[4];
-
-switch (commandInput) {
-    case 'add':
-        addMyTask(firstArgument);
-        break;
-    case 'view':
-        viewMyTasks();
-        break;
-    case 'toggle':
-        toggleMyTaskCompletion(parseInt(firstArgument));
-        break;
-    case 'remove':
-        removeMyTask(parseInt(firstArgument));
-        break;
-    case 'edit':
-        editMyTask(parseInt(firstArgument), secondArgument);
-        break;
-    case 'search':
-        searchMyTasks(firstArgument);
-        break;
-    default:
-        console.log('Unknown command. Use: add, view, toggle, remove, edit, search'); 
-}
+handleInput();
